@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="moveit_bt" type="moveit_bt_node" name="moveit_bt_node" output="screen"/>
+</launch>
