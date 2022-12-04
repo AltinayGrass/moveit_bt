@@ -4,6 +4,9 @@ project(moveit_bt)
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -22,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_geometry_msgs
 )
 
+find_package(behaviortree_cpp REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED system filesystem date_time thread)
 
@@ -169,6 +173,7 @@ add_executable(${PROJECT_NAME}_node src/moveit_bt_node.cpp)
 target_link_libraries(${PROJECT_NAME}_node
    ${catkin_LIBRARIES}
    ${Boost_LIBRARIES}
+   BT::behaviortree_cpp
    )
 
 #############

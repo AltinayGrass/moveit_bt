@@ -30,7 +30,7 @@
     <!-- Launch RViz -->
     <node name="$(anon rviz)" pkg="rviz" type="rviz" respawn="false"
       args="-d $(find moveit_bt)/launch/moveit_bt.rviz" output="screen">
-      <!-- rosparam command="load" file="$(find sr80_moveit_config)/config/kinematics.yaml"/-->
+      <!--rosparam command="load" file="$(find sr80_moveit_config)/config/kinematics.yaml"/-->
     </node>
 
     <include file="$(find moveit_bt)/launch/moveit_bt_node.launch"/>

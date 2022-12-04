@@ -5,9 +5,14 @@
 #include <moveit/moveit_cpp/planning_component.h>
 #include <moveit/robot_state/conversions.h>
 
+#include <moveit_msgs/CollisionObject.h>
+
 #include <geometry_msgs/PointStamped.h>
 
 #include <moveit_visual_tools/moveit_visual_tools.h>
+
+#include "behaviortree_cpp/bt_factory.h"
+#include <chrono>
 
 namespace rvt = rviz_visual_tools;
 
@@ -39,6 +44,33 @@ int main(int argc, char** argv)
   auto robot_start_state = planning_components->getStartState();
   auto joint_model_group_ptr = robot_model_ptr->getJointModelGroup(PLANNING_GROUP);
 
+  // We can also generate motion plans around objects in the collision scene.
+  //
+  // First we create the collision object
+  moveit_msgs::CollisionObject collision_object;
+  collision_object.header.frame_id = "base_link";
+  collision_object.id = "box";
+
+  shape_msgs::SolidPrimitive box;
+  box.type = box.BOX;
+  box.dimensions = { 0.1, 0.4, 0.1 };
+
+  geometry_msgs::Pose box_pose;
+  box_pose.position.x = 1.4;
+  box_pose.position.y = 0.5;
+  box_pose.position.z = 1.2;
+
+  collision_object.primitives.push_back(box);
+  collision_object.primitive_poses.push_back(box_pose);
+  collision_object.operation = collision_object.ADD;
+
+  // Add object to planning scene
+  {  // Lock PlanningScene
+    planning_scene_monitor::LockedPlanningSceneRW scene(moveit_cpp_ptr->getPlanningSceneMonitor());
+    scene->processCollisionObjectMsg(collision_object);
+  }  // Unlock PlanningScene
+ 
+  planning_components->setStartStateToCurrentState();
   // Visualization
   // ^^^^^^^^^^^^^
   //
@@ -118,6 +150,8 @@ int main(int argc, char** argv)
   // ^^^^^^^
   //
   // Here we will set the current state of the plan using
+
+  planning_components->setStartStateToCurrentState();
   // moveit::core::RobotState
   auto start_state = *(moveit_cpp_ptr->getCurrentState());
   //geometry_msgs::Pose start_pose;
@@ -173,6 +207,8 @@ int main(int argc, char** argv)
   // ^^^^^^^
   //
   // We can also set the goal of the plan using
+
+  planning_components->setStartStateToCurrentState();
   // moveit::core::RobotState
   auto target_state = *robot_start_state;
   geometry_msgs::Pose target_pose2;
@@ -223,6 +259,7 @@ int main(int argc, char** argv)
   // see `panda_arm.xacro
   // <https://github.com/ros-planning/panda_moveit_config/blob/noetic-devel/config/arm.xacro#L13>`_
 
+  planning_components->setStartStateToCurrentState();
   /* // Set the start state of the plan from a named robot state */
   /* planning_components->setStartState("ready"); // Not implemented yet */
   // Set the goal state of the plan from a named robot state
